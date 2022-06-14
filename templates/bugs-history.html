@@ -1,0 +1,67 @@
+{% include "dashboard-header.html" %}
+
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>{{page_name}}</h3>
+                <p class="text-subtitle text-muted">A history of bugs. Here you see deleted and cancelled bugs</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{page_name}}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <div class="card">
+            <div class="card-header">
+                <a href="{{ url_for('add_bug') }}" class="btn icon icon-left btn-success"><i class="bi bi-plus-circle-fill" style="margin-right: 10px;"></i>Add a bug</a>
+            </div>
+            <div class="card-body">
+
+                <table class="table table-striped" id="table1">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Responsible</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bug in bugs %}
+                        <tr>
+                            <td><a href="{{url_for('bug', bug_id=bug.id)}}">{{bug.title}}</a></td>
+                            {% for member in members %}
+                                {% if member.id == bug.responsible_id %}
+                                    <td>{{member.name}}</td>
+                                {% endif %}
+                            {% endfor %}
+                            <td>{{bug.priority}}</td>
+                            <td>
+                                <span class="badge 
+                                {% if bug.status=='Deleted' %}
+                                    bg-danger
+                                {% elif bug.status=='Cancelled' %}
+                                    bg-secondary
+                                {% endif %}
+                                    ">
+                                    {{bug.status}}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% include "dashboard-footer.html" %}

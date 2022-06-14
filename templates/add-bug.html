@@ -1,0 +1,71 @@
+{% include "dashboard-header.html" %}
+
+<div class="page-heading">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>{{page_name}}</h3>
+                <p class="text-subtitle text-muted">Add a new bug to the list</p>
+            </div>
+            <div class="col-12 col-md-6 order-md-2 order-first">
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{page_name}}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <section class="section">
+        <section id="multiple-column-form">
+            <div class="row match-height">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-body">
+                                <form action method="post" class="form" role="form" novalidate>
+                                    {{ form.csrf_token }}
+                                    <div class="row">
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label>Title</label>
+                                                {{ form.title(class="form-control", placeholder="Title") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label>Priority</label>
+                                                {{ form.priority(class="form-select") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label>Responsible</label>
+                                                {{ form.responsible(class="form-select") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label>Body</label>
+                                                {{ ckeditor.load() }}
+                                                {{ ckeditor.config(name='body') }}
+                                                {{ form.body(class="ck ck-reset ck-editor ck-rounded-corners") }}
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end"> 
+                                                {{ form.submit(class="btn btn-primary me-1 mb-1", value="Submit") }}
+                                            <button type="reset" class="btn btn-light-secondary me-1 mb-1">Reset</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+</div>
+
+{% include "dashboard-footer.html" %}

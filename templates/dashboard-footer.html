@@ -1,0 +1,21 @@
+            <footer>
+                <div class="footer clearfix mb-0 text-muted">
+                    <div class="float-start">
+                        <p>2022 &copy; Firebug</p>
+                    </div>
+                    <div class="float-end">
+                        <p>Developed by <a href="https://github.com/m1stik">Ivan Ivanov</a></p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History']: %}
+        <script src="{{ url_for('static', filename='js/extensions/simple-datatables.js') }}"></script>
+    {% endif %}
+<!-- <script src="{{ url_for('static', filename='js/pages/dashboard.js') }}"></script> -->
+
+</body>
+
+</html>
