@@ -6,7 +6,6 @@ from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from forms import CreateUserForm, LogInForm, AddBugForm
@@ -72,6 +71,16 @@ class Bug(db.Model, Base):
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+##FLASK GRAVATAR
+gravatar = Gravatar(app,
+                    size=250,
+                    rating='g',
+                    default='identicon',
+                    force_default=False,
+                    force_lower=False,
+                    use_ssl=False,
+                    base_url=None)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -92,7 +101,10 @@ def logged_only(function):
 @logged_only
 def dashboard():
     project = Project.query.get(current_user.project_id)
-    return render_template("dashboard.html", user=current_user, project=project, page_name="Dashboard")
+    bugs_inwork = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='In Work')
+    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).limit(5).all()
+    project_members = User.query.filter_by(project_id=current_user.project_id).limit(5).all()
+    return render_template("dashboard.html", user=current_user, project=project, bugs_inwork=bugs_inwork, members=project_members, all_bugs=all_bugs, page_name="Dashboard")
 
 @app.route("/login", methods=["POST", "GET"])
 def login():

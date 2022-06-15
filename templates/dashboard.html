@@ -17,8 +17,24 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8">
-                                    <h6 class="text-muted font-semibold">Active Bugs</h6>
-                                    <h6 class="font-extrabold mb-0">15</h6>
+                                    <h6 class="text-muted font-semibold">Bugs In Work</h6>
+                                    {% set active_bugs = [] %}
+                                    {% set critical_bugs = [] %}
+                                    {% set medium_bugs = [] %}
+                                    {% set soft_bugs = [] %}
+                                    {% for bug in bugs_inwork %}
+                                        {% if bug.status=='In Work': %}
+                                            {{ active_bugs.append(bug) or "" }}
+                                        {% endif %}
+                                        {% if bug.priority=='Critical': %}
+                                            {{ critical_bugs.append(bug) or "" }}
+                                        {% elif bug.priority=='Medium': %}
+                                            {{ medium_bugs.append(bug) or "" }}
+                                        {% elif bug.priority=='Soft': %}
+                                            {{ soft_bugs.append(bug) or "" }}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <h6 class="font-extrabold mb-0">{{active_bugs|length}}</h6>
                                 </div>
                             </div>
                         </div>
@@ -35,7 +51,7 @@
                                 </div>
                                 <div class="col-md-8">
                                     <h6 class="text-muted font-semibold">Critical Bugs</h6>
-                                    <h6 class="font-extrabold mb-0">5</h6>
+                                    <h6 class="font-extrabold mb-0">{{critical_bugs|length}}</h6>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +68,7 @@
                                 </div>
                                 <div class="col-md-8">
                                     <h6 class="text-muted font-semibold">Medium Bugs</h6>
-                                    <h6 class="font-extrabold mb-0">5</h6>
+                                    <h6 class="font-extrabold mb-0">{{medium_bugs|length}}</h6>
                                 </div>
                             </div>
                         </div>
@@ -69,7 +85,7 @@
                                 </div>
                                 <div class="col-md-8">
                                     <h6 class="text-muted font-semibold">Soft Bugs</h6>
-                                    <h6 class="font-extrabold mb-0">5</h6>
+                                    <h6 class="font-extrabold mb-0">{{soft_bugs|length}}</h6>
                                 </div>
                             </div>
                         </div>
@@ -93,45 +109,36 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for bug in all_bugs%}
                                         <tr>
+                                            {% if bug.priority=='Critical' %}
+                                                <td class="col-auto">
+                                                    <div class="stats-icon red">
+                                                        <i class="bi-dash-circle-fill"></i>
+                                                    </div>
+                                                </td>
+                                            {% elif bug.priority=='Medium' %}
+                                                <td class="col-1">
+                                                    <div class="stats-icon bg-warning">
+                                                        <i class="bi-exclamation-triangle-fill"></i>
+                                                    </div>
+                                                </td>
+                                            {% elif bug.priority=='Soft' %}
+                                                <td class="col-1">
+                                                    <div class="stats-icon blue">
+                                                        <i class="bi-info-circle-fill"></i>
+                                                    </div>
+                                                </td>
+                                            {% endif %}
                                             <td class="col-auto">
-                                                <div class="stats-icon red ms-1 mb-0">
-                                                    <i class="bi-dash-circle-fill"></i>
-                                                </div>
+                                                <a href="{{url_for('bug', bug_id=bug.id)}}" class="mb-12">{{bug.title}}</a>
                                             </td>
                                             <td class="col-auto">
-                                                <a href="#" class="mb-12">Wow amazing design! Can you make another tutorial for this design?</a>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class="font-bold ms-1 mb-0">Active</p>
+                                                <p class="font-bold ms-1 mb-0">{{bug.status}}</p>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="col-1">
-                                                <div class="stats-icon bg-warning">
-                                                    <i class="bi-exclamation-triangle-fill"></i>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <a href="#" class="mb-0">Wow amazing design! Can you make another tutorial for this design?</a>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class="font-bold ms-1 mb-0">Active</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-1">
-                                                <div class="stats-icon blue">
-                                                    <i class="bi-info-circle-fill"></i>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <a href="#" class="mb-0">Wow amazing design! Can you make another tutorial for this design?</a>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class="font-bold ms-1 mb-0">Active</p>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -146,10 +153,10 @@
                 <div class="card-body py-4 px-5">
                     <div class="d-flex align-items-center">
                         <div class="avatar avatar-xl">
-                            <img src="assets/images/faces/1.jpg" alt="Face 1">
+                            <img src="{{ user.email | gravatar }}" alt="Face 1">
                         </div>
                         <div class="ms-3 name">
-                            <h5 class="font-bold">{{ current_user.name }}</h5>
+                            <h5 class="font-bold">{{ user.name }}</h5>
                             <h6 class="text-muted mb-0"><a href="{{ url_for('logout') }}">Log Out</a></h6>
                         </div>
                     </div>
@@ -160,33 +167,17 @@
                     <h4>Your Team</h4>
                 </div>
                 <div class="card-content pb-4">
+                    {% for member in members %}
                     <div class="recent-message d-flex px-4 py-3">
                         <div class="avatar avatar-lg">
-                            <img src="assets/images/faces/4.jpg">
+                            <img src="{{ member.email | gravatar }}">
                         </div>
                         <div class="name ms-4">
-                            <h5 class="mb-1">Hank Schrader</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
+                            <h5 class="mb-1">{{ member.name }}</h5>
+                            <h6 class="text-muted mb-0">{{ member.role }}</h6>
                         </div>
                     </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="assets/images/faces/5.jpg">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Dean Winchester</h5>
-                            <h6 class="text-muted mb-0">@imdean</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="assets/images/faces/1.jpg">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">John Dodol</h5>
-                            <h6 class="text-muted mb-0">@dodoljohn</h6>
-                        </div>
-                    </div>
+                    {% endfor %}
                     <div class="px-4">
                         <button class='btn btn-block btn-xl btn-outline-primary font-bold mt-3'>Add a Member</button>
                     </div>
