@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_name }} - Firebug</title>
+    <title>{{ page_name }} - Bugfire</title>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app-dark.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo/favicon.png') }}" type="image/png">
 
-    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History']: %}
+    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History', 'Project Team']: %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/simple-datatables.css') }}">
     {% endif %}
 
@@ -70,9 +70,8 @@
                 </ul>
             </li>
 
-            <li
-                class="sidebar-item  ">
-                <a href="form-layout.html" class='sidebar-link'>
+            <li class="sidebar-item {% if page_name in ['Project Team', 'Add a Member']: %}active{% endif %}">
+                <a href="{{url_for('team')}}" class='sidebar-link'>
                     <i class="bi bi-people-fill"></i>
                     <span>Team</span>
                 </a>

@@ -8,8 +8,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreateUserForm, LogInForm, AddBugForm
+from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm
 from flask_gravatar import Gravatar
+from password_generator import PasswordGenerator
 from functools import wraps
 from dotenv import load_dotenv
 
@@ -21,7 +22,7 @@ DB_HOST = os.getenv('DB_HOST')
 DB_DATABASE = os.getenv('DB_DATABASE')
 APP_SECRET_KEY = os.getenv('APP_SECRET_KEY')
 
-## Objects
+## App set up
 app = Flask(__name__)
 app.config['SECRET_KEY'] = APP_SECRET_KEY
 ckeditor = CKEditor(app)
@@ -65,6 +66,7 @@ class Bug(db.Model, Base):
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     project = relationship("Project", back_populates="bugs")
 
+## Uncomment this for the initial creation of the database
 #db.create_all()
 
 ## FLASK LOGIN
@@ -85,7 +87,7 @@ gravatar = Gravatar(app,
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-## DECORATOR FOR ADMIN ONLY PAGES
+## Decorator for login required pages
 def logged_only(function):
     @wraps(function)
     def wrapper_function(*args, **kwargs):
@@ -96,7 +98,7 @@ def logged_only(function):
         return function(*args, **kwargs)
     return wrapper_function
 
-
+## ROUTES
 @app.route("/dashboard")
 @logged_only
 def dashboard():
@@ -164,6 +166,7 @@ def logout():
 def forgot_pass():
     return render_template("auth-forgot-password.html")
 
+## BUGS
 @app.route("/bugs")
 @logged_only
 def bugs():
@@ -246,6 +249,56 @@ def bug_edit(bug_id):
         return redirect(url_for("bugs"))
 
     return render_template("add-bug.html", form=edit_form, page_name=f"Edit {bug.title}")
+
+## MEMBERS
+@app.route("/team")
+@logged_only
+def team():
+    project_members = User.query.filter_by(project_id=current_user.project_id).all()
+    return render_template("project-members.html", members=project_members, page_name="Project Team")
+
+@app.route("/add-member", methods=["POST", "GET"])
+@logged_only
+def add_member():
+    form = AddMemberForm(password=PasswordGenerator().generate())
+    project = Project.query.get(current_user.project_id)
+    if form.validate_on_submit():
+        if User.query.filter_by(email=form.email.data).first():
+            flash("User with such email already exists")
+            return redirect(url_for("add_member"))
+        else:
+            hashed_salted_password = generate_password_hash(
+                password = form.password.data,
+                method = 'pbkdf2:sha256',
+                salt_length = 8
+            )
+            new_user = User(
+                name = form.name.data,
+                password = hashed_salted_password,
+                email = form.email.data,
+                role = form.role.data,
+                project = project
+            )
+            db.session.add( new_user)
+            db.session.commit()
+            # SEND EMAIL
+            return redirect(url_for("team"))
+    return render_template("add-member.html", form=form, page_name="Add a Member")
+
+@app.route("/edit-member/<int:member_id>", methods=["POST", "GET"])
+@logged_only
+def edit_member(member_id):
+    member = User.query.get(member_id)
+    edit_form = EditMemberForm(
+        name=member.name,
+        role=member.role
+    )
+    if edit_form.validate_on_submit():
+        member.name=edit_form.name.data,
+        member.role=edit_form.role.data,
+        db.session.commit()
+        return redirect(url_for("team"))
+    return render_template("add-member.html", form=edit_form, page_name=f"Edit {member.name}")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

@@ -1,10 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, EmailField, SelectField
-from wtforms.validators import DataRequired, URL
+from wtforms.validators import DataRequired
 from flask_ckeditor import CKEditorField
 
 ## WTForm
-
 class CreateUserForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
@@ -24,3 +23,15 @@ class AddBugForm(FlaskForm):
     responsible = SelectField(u'Group', coerce=int, validators=[DataRequired()])
     body = CKEditorField("Body", validators=[DataRequired()])
     submit = SubmitField("Add")
+
+class AddMemberForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired()])
+    password = StringField("Password", validators=[DataRequired()])
+    role = StringField("Role", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+class EditMemberForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    role = StringField("Role", validators=[DataRequired()])
+    submit = SubmitField("Submit")
