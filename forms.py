@@ -34,4 +34,13 @@ class AddMemberForm(FlaskForm):
 class EditMemberForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     role = StringField("Role", validators=[DataRequired()])
-    submit = SubmitField("Submit")
+    submit = SubmitField("Submit1")
+
+class EditProjectForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    submit1 = SubmitField("Submit")
+
+class EditProfileForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    new_password = StringField("New Password")
+    submit2 = SubmitField("Submit2")

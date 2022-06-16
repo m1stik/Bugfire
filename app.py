@@ -1,15 +1,17 @@
 import pymysql, os
 from flask import Flask, render_template, redirect, url_for, flash, abort
-from flask_bootstrap import Bootstrap
+#from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import delete
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm
+from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm
 from flask_gravatar import Gravatar
+from flask_mail import Mail, Message
 from password_generator import PasswordGenerator
 from functools import wraps
 from dotenv import load_dotenv
@@ -21,18 +23,28 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_DATABASE = os.getenv('DB_DATABASE')
 APP_SECRET_KEY = os.getenv('APP_SECRET_KEY')
+MAIL_SERVER = os.getenv('MAIL_SERVER')
+MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 
 ## App set up
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = APP_SECRET_KEY
-ckeditor = CKEditor(app)
-Bootstrap(app)
-
-Base = declarative_base()
-
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = MAIL_SERVER
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+ckeditor = CKEditor(app)
+#Bootstrap(app)
+mail = Mail(app)
 db = SQLAlchemy(app)
+Base = declarative_base()
 
 ## CONFIGURE TABLES
 
@@ -83,11 +95,12 @@ gravatar = Gravatar(app,
                     use_ssl=False,
                     base_url=None)
 
+## Setup a user object
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-## Decorator for login required pages
+## Decorator access for login required pages
 def logged_only(function):
     @wraps(function)
     def wrapper_function(*args, **kwargs):
@@ -97,6 +110,27 @@ def logged_only(function):
             return redirect(url_for("login"))
         return function(*args, **kwargs)
     return wrapper_function
+
+## Decorator access for creators only
+def creator_only(function):
+    @wraps(function)
+    def wrapper_function(*args, **kwargs):
+        if current_user.role != 'Creator':
+            abort(403)
+        else:
+            pass
+        return function(*args, **kwargs)
+    return wrapper_function
+
+## Checking user for the access to the requested bug or member
+def check_bug_or_member(user, bug=None, member=None):
+    if bug:
+        if bug.project_id != user.project_id:
+            abort(403)
+    if member:
+        if member.project_id != user.project_id:
+            abort(403)
+
 
 ## ROUTES
 @app.route("/dashboard")
@@ -153,8 +187,15 @@ def register():
             
             db.session.add(new_project, new_user)
             db.session.commit()
+
+            # SEND EMAIL TO NEW USER
+            msg = Message('Bugfire Sign Up', sender=('Bugfire', 'mail@bugfire.ru'), recipients=[f"{new_user.email}"])
+            msg.html = f"<h3>Hi, {new_user.name}</h3><p>You have successfully registered your account and the project. Here are your credentials:</p><p>Email: {new_user.email}</p><p>Password: {form.password.data}</p>"
+            mail.send(msg)
+
             login_user(new_user)
             return redirect(url_for("dashboard"))
+
     return render_template("auth-register.html", form=form, logged_in=current_user.is_authenticated, page_name="Sign Up")
 
 @app.route('/logout')
@@ -212,8 +253,8 @@ def add_bug():
 @logged_only
 def bug(bug_id):
     bug = Bug.query.get(bug_id)
-    if bug.project_id != current_user.project_id:
-        abort(403)
+    check_bug_or_member(current_user, bug=bug)
+
     project_members = User.query.filter_by(project_id=current_user.project_id).all()    
     return render_template("bug-view.html", bug=bug, members=project_members, page_name=bug.title)
 
@@ -221,17 +262,26 @@ def bug(bug_id):
 @logged_only
 def bug_status(bug_id, status):
     bug = Bug.query.get(bug_id)
-    if bug.project_id != current_user.project_id:
-        abort(403)
-    else:
-        bug.status = str(status)
-        db.session.commit()
+    check_bug_or_member(current_user, bug=bug)
+
+    bug.status = str(status)
+    db.session.commit()
+    return redirect(url_for('bugs'))
+
+@app.route("/bugs/delete")
+@logged_only
+@creator_only
+def delete_all_bugs():
+    statement = delete(Bug).where(Bug.project_id==current_user.project_id)
+    db.session.exec(statement)
     return redirect(url_for('bugs'))
 
 @app.route("/edit-bug/<int:bug_id>", methods=["POST", "GET"])
 @logged_only
 def bug_edit(bug_id):
     bug = Bug.query.get(bug_id)
+    check_bug_or_member(current_user, bug=bug)
+
     edit_form = AddBugForm(
         title=bug.title,
         responsible=bug.responsible_id,
@@ -279,9 +329,14 @@ def add_member():
                 role = form.role.data,
                 project = project
             )
-            db.session.add( new_user)
+            db.session.add(new_user)
             db.session.commit()
-            # SEND EMAIL
+
+            # SEND EMAIL TO NEW MEMBER
+            msg = Message('Bugfire New Member', sender=('Bugfire', 'mail@bugfire.ru'), recipients=[f"{new_user.email}"])
+            msg.html = f"<h3>Hi, {new_user.name}</h3><p>You have been added to the project <b>{project.name}</b>. Here is your account:</p><p>Email: {new_user.email}</p><p>Password: {form.password.data}</p><p>You can log in here: <a href='https://bugfire.ru/login'>bugfire.ru/login</a></p>"
+            mail.send(msg)
+
             return redirect(url_for("team"))
     return render_template("add-member.html", form=form, page_name="Add a Member")
 
@@ -289,16 +344,53 @@ def add_member():
 @logged_only
 def edit_member(member_id):
     member = User.query.get(member_id)
+    check_bug_or_member(current_user, member=member)
+
     edit_form = EditMemberForm(
         name=member.name,
         role=member.role
     )
     if edit_form.validate_on_submit():
-        member.name=edit_form.name.data,
-        member.role=edit_form.role.data,
+        member.name=edit_form.name.data
+        member.role=edit_form.role.data
         db.session.commit()
         return redirect(url_for("team"))
     return render_template("add-member.html", form=edit_form, page_name=f"Edit {member.name}")
+
+
+## SETTINGS
+@app.route("/settings", methods=["POST", "GET"])
+@logged_only
+def settings():
+    project = Project.query.get(current_user.project_id)
+    user = User.query.get(current_user.id)
+
+    project_form = EditProjectForm(
+        title=project.name
+    )
+    profile_form = EditProfileForm(
+        name=current_user.name,
+        new_password=""
+    )
+
+    if project_form.submit1.data and project_form.validate() and current_user.role == 'Creator':
+        project.name=project_form.title.data,
+        db.session.commit()
+        return redirect(url_for("settings"))
+    
+    elif profile_form.submit2.data and profile_form.validate():
+        user.name=profile_form.name.data
+        if profile_form.new_password.data != "":
+            hashed_salted_password = generate_password_hash(
+                password = profile_form.new_password.data,
+                method = 'pbkdf2:sha256',
+                salt_length = 8
+            )
+            user.password=hashed_salted_password
+        db.session.commit()
+        return redirect(url_for("settings"))
+
+    return render_template("settings.html", project_form=project_form, profile_form=profile_form, user=current_user, page_name="Settings")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

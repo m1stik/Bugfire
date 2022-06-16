@@ -37,7 +37,11 @@
                                         <div class="col-md-6 col-12">
                                             <div class="form-group">
                                                 <label>Role</label>
-                                                {{ form.role(class="form-control", placeholder="Developer") }}
+                                                {% if form.role.data == 'Creator' %}
+                                                    {{ form.role(class="form-control", disabled=True) }}
+                                                {% else %}
+                                                    {{ form.role(class="form-control", placeholder="Developer") }}
+                                                {% endif %}
                                             </div>
                                         </div>
 
