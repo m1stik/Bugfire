@@ -1,4 +1,5 @@
 import random
+import uuid
 
 class PasswordGenerator:
 
@@ -29,3 +30,6 @@ class PasswordGenerator:
 
         #Password output
         return str(password_string)
+    
+    def generate_hash(self):
+        return str(uuid.uuid4().hex)

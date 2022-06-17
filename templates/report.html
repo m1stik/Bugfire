@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app-dark.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo/favicon.png') }}" type="image/png">
+</head>
+
+<body>
+    <nav class="navbar navbar-light">
+        <div class="container d-block">
+            <a class="navbar-brand ms-4" href="index.html">
+                <img src="{{ url_for('static', filename='images/logo/logo.png') }}" style="height: 2.5rem;">
+            </a>
+        </div>
+    </nav>
+    
+
+<div class="container">
+    <div class="card mt-5">
+        <div class="card-header">
+            <h4 class="card-title">Bug Report</h4>
+        </div>
+        <div class="card-body">
+            {% if form: %}
+            <form action method="post" class="form" role="form" novalidate>
+                {{ form.csrf_token }}
+                <div class="row">
+                    <div class="col-md-12 col-12">
+                        <div class="form-group">
+                            <label>Title</label>
+                            {{ form.title(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            {{ ckeditor.load() }}
+                            {{ ckeditor.config(name='body') }}
+                            {{ form.body(class="ck ck-reset ck-editor ck-rounded-corners") }}
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                        {{ form.submit(class="btn btn-danger me-1 mb-1", value="Report") }}
+                    </div>
+                </div>
+            </form>
+            {% else: %}
+                <p>The report has been sent</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

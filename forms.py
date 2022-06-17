@@ -44,3 +44,8 @@ class EditProfileForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     new_password = StringField("New Password")
     submit2 = SubmitField("Submit2")
+
+class SendReportForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    body = CKEditorField("Description", validators=[DataRequired()])
+    submit = SubmitField("Report")

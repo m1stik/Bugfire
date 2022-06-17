@@ -45,6 +45,14 @@
                                             </div>
                                         </div>
 
+                                        {% if member: %}
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group">
+                                                    <a href="{{url_for('delete_member', member_id=member.id)}}" class="btn btn-danger me-1 mb-1">Delete this Member</a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
                                         {% if page_name=='Add a Member' %}
                                             <div class="col-md-6 col-12">
                                                 <div class="form-group">

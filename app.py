@@ -9,7 +9,7 @@ from sqlalchemy import delete
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm
+from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm, SendReportForm
 from flask_gravatar import Gravatar
 from flask_mail import Mail, Message
 from password_generator import PasswordGenerator
@@ -52,6 +52,7 @@ class Project(db.Model, Base):
     __tablename__ = "projects"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), nullable=False)
+    hash_id = db.Column(db.String(50), nullable=True)
     members = relationship("User", back_populates="project")
     bugs = relationship("Bug", back_populates="project")
 
@@ -71,9 +72,9 @@ class Bug(db.Model, Base):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(60), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    priority = db.Column(db.String(12), nullable=False)
+    priority = db.Column(db.String(12), nullable=True)
     status = db.Column(db.String(12), nullable=False)
-    responsible_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    responsible_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     responsible = relationship("User", back_populates="bugs")
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     project = relationship("Project", back_populates="bugs")
@@ -138,7 +139,7 @@ def check_bug_or_member(user, bug=None, member=None):
 def dashboard():
     project = Project.query.get(current_user.project_id)
     bugs_inwork = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='In Work')
-    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).limit(5).all()
+    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status!='New').limit(5).all()
     project_members = User.query.filter_by(project_id=current_user.project_id).limit(5).all()
     return render_template("dashboard.html", user=current_user, project=project, bugs_inwork=bugs_inwork, members=project_members, all_bugs=all_bugs, page_name="Dashboard")
 
@@ -175,7 +176,8 @@ def register():
                 salt_length = 8
             )
             new_project = Project(
-                name = form.project_name.data
+                name = form.project_name.data,
+                hash_id = PasswordGenerator().generate_hash()
             )
             new_user = User(
                 name = form.name.data,
@@ -305,7 +307,7 @@ def bug_edit(bug_id):
 @logged_only
 def team():
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
-    return render_template("project-members.html", members=project_members, page_name="Project Team")
+    return render_template("project-members.html", members=project_members, user=current_user, page_name="Project Team")
 
 @app.route("/add-member", methods=["POST", "GET"])
 @logged_only
@@ -355,7 +357,17 @@ def edit_member(member_id):
         member.role=edit_form.role.data
         db.session.commit()
         return redirect(url_for("team"))
-    return render_template("add-member.html", form=edit_form, page_name=f"Edit {member.name}")
+    return render_template("add-member.html", form=edit_form, member=member, page_name=f"Edit {member.name}")
+
+@app.route("/delete-member/<int:member_id>")
+@logged_only
+@creator_only
+def delete_member(member_id):
+    member_to_delete = User.query.get(member_id)
+    if member_to_delete.role != "Creator":
+        db.session.delete(member_to_delete)
+        db.session.commit()
+    return redirect(url_for('team'))
 
 
 ## SETTINGS
@@ -391,6 +403,42 @@ def settings():
         return redirect(url_for("settings"))
 
     return render_template("settings.html", project_form=project_form, profile_form=profile_form, user=current_user, page_name="Settings")
+
+
+## BUGREPORT
+@app.route("/bugreport")
+@logged_only
+def bugreport():
+    project = Project.query.get(current_user.project_id)
+    return render_template("bugreport.html", project=project, page_name="Bugreport Link")
+
+@app.route("/bugreport/refresh/<int:project_id>")
+@logged_only
+def refresh_bugreport_link(project_id):
+    project = Project.query.get(project_id)
+    project.hash_id = PasswordGenerator().generate_hash()
+    db.session.commit()
+    return redirect(url_for("bugreport"))
+
+@app.route("/report/<project_hash>", methods=["POST", "GET"])
+@logged_only
+def report(project_hash):
+    project = Project.query.filter_by(hash_id=project_hash).first()
+    if not project:
+        abort(404)
+    form = SendReportForm()
+    if form.validate_on_submit():
+        new_bug = Bug(
+                    title=form.title.data,
+                    body=form.body.data,
+                    project_id=project.id,
+                    status='New'
+                )
+        db.session.add(new_bug)
+        db.session.commit()
+        return render_template("report.html")
+    return render_template("report.html", form=form)
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

@@ -39,7 +39,11 @@
                             <td>{{member.name}}</td>
                             <td>{{member.role}}</td>
                             <td>{{member.email}}</td>
-                            <td><a href="{{url_for('edit_member', member_id=member.id)}}"><i class="bi bi-pencil-fill"></i></a></td>
+                            <td>
+                            {% if user.role == 'Creator' %}
+                                <a href="{{url_for('edit_member', member_id=member.id)}}"><i class="bi bi-pencil-fill"></i></a>
+                            {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
