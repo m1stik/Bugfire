@@ -1,14 +1,12 @@
 import pymysql, os
 from flask import Flask, render_template, redirect, url_for, flash, abort
-#from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import delete
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm, SendReportForm
 from flask_gravatar import Gravatar
 from flask_mail import Mail, Message
@@ -213,7 +211,7 @@ def forgot_pass():
 @app.route("/bugs")
 @logged_only
 def bugs():
-    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done'))
+    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done')).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, page_name="Active Bugs")
 
@@ -227,9 +225,15 @@ def bugs_history():
 @app.route("/your-bugs")
 @logged_only
 def your_bugs():
-    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done') & (Bug.responsible_id==current_user.id))
+    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done') & (Bug.responsible_id==current_user.id)).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, page_name="Your Bugs")
+
+@app.route("/new-bugs")
+@logged_only
+def new_bugs():
+    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='New')
+    return render_template("bugs-new.html", bugs=bugs_list, page_name="New Bugs")
 
 @app.route("/add-bug", methods=["POST", "GET"])
 @logged_only
@@ -293,10 +297,12 @@ def bug_edit(bug_id):
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     edit_form.responsible.choices = [(g.id, g.name) for g in project_members]
     if edit_form.validate_on_submit():
-        bug.title=edit_form.title.data,
-        bug.priority=edit_form.priority.data,
-        bug.body=edit_form.body.data,
-        bug.responsible_id=edit_form.responsible.data,
+        if bug.status == 'New':
+            bug.status = 'In Work'
+        bug.title=edit_form.title.data
+        bug.priority=edit_form.priority.data
+        bug.body=edit_form.body.data
+        bug.responsible_id=edit_form.responsible.data
         db.session.commit()
         return redirect(url_for("bugs"))
 
@@ -336,7 +342,7 @@ def add_member():
 
             # SEND EMAIL TO NEW MEMBER
             msg = Message('Bugfire New Member', sender=('Bugfire', 'mail@bugfire.ru'), recipients=[f"{new_user.email}"])
-            msg.html = f"<h3>Hi, {new_user.name}</h3><p>You have been added to the project <b>{project.name}</b>. Here is your account:</p><p>Email: {new_user.email}</p><p>Password: {form.password.data}</p><p>You can log in here: <a href='https://bugfire.ru/login'>bugfire.ru/login</a></p>"
+            msg.html = f"""<h3>Hi, {new_user.name}</h3><p>You have been added to the project <b>{project.name}</b>. Here is your account:</p><p>Email: {new_user.email}</p><p>Password: {form.password.data}</p><p>You can log in here: <a href='{url_for('login')}'>bugfire.ru/login</a></p>"""
             mail.send(msg)
 
             return redirect(url_for("team"))

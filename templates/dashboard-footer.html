@@ -11,7 +11,7 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History', 'Project Team']: %}
+    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History', 'Project Team', 'New Bugs']: %}
         <script src="{{ url_for('static', filename='js/extensions/simple-datatables.js') }}"></script>
     {% endif %}
 <!-- <script src="{{ url_for('static', filename='js/pages/dashboard.js') }}"></script> -->

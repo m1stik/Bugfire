@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app-dark.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo/favicon.png') }}" type="image/png">
 
-    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History', 'Project Team']: %}
+    {% if page_name in ['Active Bugs', 'Your Bugs', 'New Bugs', 'Bugs History', 'Project Team', 'New Bugs']: %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/simple-datatables.css') }}">
     {% endif %}
 
@@ -62,7 +62,7 @@
                         <a href="{{url_for('your_bugs')}}">Your Bugs</a>
                     </li>
                     <li class="submenu-item ">
-                        <a href="component-badge.html" class="fonticon-wrap d-inline">New</a>
+                        <a href="{{url_for('new_bugs')}}" class="fonticon-wrap d-inline {% if page_name=='New Bugs' %}active{% endif %}">New</a>
                         <span class="badge bg-light-primary badge-pill badge-round float-right mt-50">5</span>
                     </li>
                     <li class="submenu-item {% if page_name=='Bugs History' %}active{% endif %}">
@@ -81,7 +81,7 @@
             <li class="sidebar-title">Additional</li>
             
             <li
-                class="sidebar-item  ">
+                class="sidebar-item {% if page_name=='Bugreport Link' %}active{% endif %}">
                 <a href="{{url_for('bugreport')}}" class='sidebar-link'>
                     <i class="bi bi-link-45deg"></i>
                     <span>Bugreport Link</span>
@@ -89,7 +89,7 @@
             </li>
 
             <li
-                class="sidebar-item  ">
+                class="sidebar-item {% if page_name=='Settings' %}active{% endif %}">
                 <a href="{{url_for('settings')}}" class='sidebar-link'>
                     <i class="bi bi-gear-fill"></i>
                     <span>Settings</span>

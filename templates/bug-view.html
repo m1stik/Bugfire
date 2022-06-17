@@ -25,6 +25,7 @@
                         <div class="card-content">
                             <div class="card-body">
                                     <div class="row">
+                                        {% if bug.status != 'New' %}
                                         <div class="col-md-6 col-12">
                                             <div class="form-group">
                                                 {% for member in members %}
@@ -34,6 +35,7 @@
                                                 {% endfor %}
                                             </div>
                                         </div>
+                                        {% endif %}
                                         <div class="col-md-6 col-12">
                                             <div class="form-group">
                                                 <p><b>Priority: </b>{{bug.priority}}</p>
@@ -51,10 +53,14 @@
                                             </div>
                                         </div>
                                         <div class="col-12 d-flex justify-content-end">
-                                            {% if bug.status=='In Work'%}
+                                            {% if bug.status=='In Work' %}
                                             <a href="{{url_for('bug_status', bug_id=bug.id, status='Done')}}" class="btn btn-success me-1 mb-1">Complete</a>
                                             <a href="{{url_for('bug_edit', bug_id=bug.id)}}" class="btn btn-dark me-1 mb-1">Edit</a>
                                             <a href="{{url_for('bug_status', bug_id=bug.id, status='Cancelled')}}" class="btn btn-secondary me-1 mb-1">Cancel</a>
+                                            <a href="{{url_for('bug_status', bug_id=bug.id, status='Deteled')}}" class="btn btn-danger me-1 mb-1">Delete</a>
+
+                                            {% elif bug.status=='New' %}
+                                            <a href="{{url_for('bug_edit', bug_id=bug.id)}}" class="btn btn-success me-1 mb-1">Take In Work</a>
                                             <a href="{{url_for('bug_status', bug_id=bug.id, status='Deteled')}}" class="btn btn-danger me-1 mb-1">Delete</a>
                                             {% endif %}
                                         </div>
