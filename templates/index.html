@@ -68,7 +68,7 @@
         <div class="col-xl-8">
           <h1><span style="color: #ffa900">Bug</span><span style="color: #ff6536">Fire</span> - Simple tool to track your bugs</h1>
           <h2>Free web application to manage your bugs, team and feedback</h2>
-          <a href="https://www.youtube.com/watch?v=jDDaplaOz7Q" class="glightbox play-btn mb-4"></a>
+          <a href="https://youtu.be/PgTX-bJqsEI" class="glightbox play-btn mb-4"></a>
         </div>
       </div>
     </div>
@@ -98,11 +98,11 @@
           </div>
           <div class="col-lg-6 pt-4 pt-lg-0">
             <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum.
+              When a project gets too big, it is difficult to keep control of everything. BugFire is developed with the real 
+              purpose of managing bugs and task to help developers accomplish their goals. This application is still in development,
+              and will keep getting better with the main idea of simple but smart design.
             </p>
-            <a href="#" class="btn-learn-more">Learn More</a>
+            <a href="#features" class="btn-learn-more">Learn More</a>
           </div>
         </div>
 
@@ -177,7 +177,7 @@
 
         <div class="row">
           <div class="col-lg-9 text-center text-lg-start">
-            <h3>Sign Un Right Now</h3>
+            <h3>Sign Up Right Now</h3>
             <p> BugFire is totally free, and it takes less than a minute to sign up and setup your project. You don't even need to confirm your email ;)</p>
           </div>
           <div class="col-lg-3 cta-btn-container text-center">
@@ -274,92 +274,83 @@
         <div class="row portfolio-container">
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-app">
-            <img src="assets/img/portfolio/portfolio-1.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/dashboard.png') }}" class="img-fluid" alt="dashboard">
             <div class="portfolio-info">
-              <h4>App 1</h4>
-              <p>App</p>
-              <a href="assets/img/portfolio/portfolio-1.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="App 1"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Dashboard</h4>
+              <p>The main page, overview of a project</p>
+              <a href="{{ url_for('static', filename='images/showcase/dashboard.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Dashboard"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-web">
-            <img src="assets/img/portfolio/portfolio-2.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/team.png') }}" class="img-fluid" alt="manage team">
             <div class="portfolio-info">
-              <h4>Web 3</h4>
-              <p>Web</p>
-              <a href="assets/img/portfolio/portfolio-2.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Web 3"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Manage Team</h4>
+              <p>Add more members to your project, and manage them</p>
+              <a href="{{ url_for('static', filename='images/showcase/team.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Manage Team"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-app">
-            <img src="assets/img/portfolio/portfolio-3.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/dashboard-dark.png') }}" class="img-fluid" alt="dark dashboard">
             <div class="portfolio-info">
-              <h4>App 2</h4>
-              <p>App</p>
-              <a href="assets/img/portfolio/portfolio-3.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="App 2"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Dark Dashboard</h4>
+              <p>You can switch to the dark theme</p>
+              <a href="{{ url_for('static', filename='images/showcase/dashboard-dark.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Dark Dashboard"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-card">
-            <img src="assets/img/portfolio/portfolio-4.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/active-bugs.png') }}" class="img-fluid" alt="active bugs">
             <div class="portfolio-info">
-              <h4>Card 2</h4>
-              <p>Card</p>
-              <a href="assets/img/portfolio/portfolio-4.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Card 2"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Active Bugs</h4>
+              <p>Here you can browse all active bugs</p>
+              <a href="{{ url_for('static', filename='images/showcase/active-bugs.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Active Bugs"><i class="bx bx-plus"></i></a>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 portfolio-item filter-card">
+            <img src="{{ url_for('static', filename='images/showcase/add-bug.png') }}" class="img-fluid" alt="add a bug">
+            <div class="portfolio-info">
+              <h4>Add a Bug</h4>
+              <p>Here you can browse all active bugs</p>
+              <a href="{{ url_for('static', filename='images/showcase/add-bug.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Add a Bug"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-web">
-            <img src="assets/img/portfolio/portfolio-5.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/add-member.png') }}" class="img-fluid" alt="add member page">
             <div class="portfolio-info">
-              <h4>Web 2</h4>
-              <p>Web</p>
-              <a href="assets/img/portfolio/portfolio-5.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Web 2"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Add Member Page</h4>
+              <p>This is how adding member form looks like</p>
+              <a href="{{ url_for('static', filename='images/showcase/add-member.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Add Member Page"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
           <div class="col-lg-4 col-md-6 portfolio-item filter-app">
-            <img src="assets/img/portfolio/portfolio-6.jpg" class="img-fluid" alt="">
+            <img src="{{ url_for('static', filename='images/showcase/sign-up.png') }}" class="img-fluid" alt="sign up">
             <div class="portfolio-info">
-              <h4>App 3</h4>
-              <p>App</p>
-              <a href="assets/img/portfolio/portfolio-6.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="App 3"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Sign Up</h4>
+              <p>This is how sign up page looks like</p>
+              <a href="{{ url_for('static', filename='images/showcase/sign-up.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Sign Up"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
-          <div class="col-lg-4 col-md-6 portfolio-item filter-card">
-            <img src="assets/img/portfolio/portfolio-7.jpg" class="img-fluid" alt="">
+          <div class="col-lg-4 col-md-6 portfolio-item filter-app">
+            <img src="{{ url_for('static', filename='images/showcase/settings.png') }}" class="img-fluid" alt="settings">
             <div class="portfolio-info">
-              <h4>Card 1</h4>
-              <p>Card</p>
-              <a href="assets/img/portfolio/portfolio-7.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Card 1"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Settings</h4>
+              <p>Change settings of your project or profile</p>
+              <a href="{{ url_for('static', filename='images/showcase/settings.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Settings"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
-          <div class="col-lg-4 col-md-6 portfolio-item filter-card">
-            <img src="assets/img/portfolio/portfolio-8.jpg" class="img-fluid" alt="">
+          <div class="col-lg-4 col-md-6 portfolio-item filter-app">
+            <img src="{{ url_for('static', filename='images/showcase/report.png') }}" class="img-fluid" alt="report page">
             <div class="portfolio-info">
-              <h4>Card 3</h4>
-              <p>Card</p>
-              <a href="assets/img/portfolio/portfolio-8.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Card 3"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 portfolio-item filter-web">
-            <img src="assets/img/portfolio/portfolio-9.jpg" class="img-fluid" alt="">
-            <div class="portfolio-info">
-              <h4>Web 3</h4>
-              <p>Web</p>
-              <a href="assets/img/portfolio/portfolio-9.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Web 3"><i class="bx bx-plus"></i></a>
-              <a href="portfolio-details.html" class="details-link" title="More Details"><i class="bx bx-link"></i></a>
+              <h4>Report Page</h4>
+              <p>This is how bug report page looks like</p>
+              <a href="{{ url_for('static', filename='images/showcase/report.png') }}" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link" title="Report Page"><i class="bx bx-plus"></i></a>
             </div>
           </div>
 
@@ -431,9 +422,8 @@
       <h3>BugFire</h3>
       <p>A simple and free web application to manage your bugs, team and feedback</p>
       <div class="social-links">
-        <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
-        <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
-        <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        <a href="https://github.com/m1stik/Bugfire"><i class='bx bxl-github'></i></a>
+        <a href="mailto:ivanday221@gmail.com"><i class='bx bxs-envelope' ></i></a>
       </div>
       <div class="copyright">
         &copy; Copyright <strong><span>BugFire</span></strong>. All Rights Reserved
