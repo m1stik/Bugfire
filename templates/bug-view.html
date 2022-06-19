@@ -57,11 +57,11 @@
                                             <a href="{{url_for('bug_status', bug_id=bug.id, status='Done')}}" class="btn btn-success me-1 mb-1">Complete</a>
                                             <a href="{{url_for('bug_edit', bug_id=bug.id)}}" class="btn btn-dark me-1 mb-1">Edit</a>
                                             <a href="{{url_for('bug_status', bug_id=bug.id, status='Cancelled')}}" class="btn btn-secondary me-1 mb-1">Cancel</a>
-                                            <a href="{{url_for('bug_status', bug_id=bug.id, status='Deteled')}}" class="btn btn-danger me-1 mb-1">Delete</a>
+                                            <a href="{{url_for('bug_status', bug_id=bug.id, status='Deleted')}}" class="btn btn-danger me-1 mb-1">Delete</a>
 
                                             {% elif bug.status=='New' %}
                                             <a href="{{url_for('bug_edit', bug_id=bug.id)}}" class="btn btn-success me-1 mb-1">Take In Work</a>
-                                            <a href="{{url_for('bug_status', bug_id=bug.id, status='Deteled')}}" class="btn btn-danger me-1 mb-1">Delete</a>
+                                            <a href="{{url_for('bug_status', bug_id=bug.id, status='Deleted')}}" class="btn btn-danger me-1 mb-1">Delete</a>
                                             {% endif %}
                                         </div>
                                     </div>

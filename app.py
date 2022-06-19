@@ -149,7 +149,12 @@ def get_new_bugs():
 ## ROUTES
 @app.route("/")
 def home():
-    return render_template("index.html")
+    stats = {
+        'users' : db.session.query(User.id).count(),
+        'projects' : db.session.query(Project.id).count(),
+        'bugs' : db.session.query(Bug.id).count()
+    }
+    return render_template("index.html", stats=stats)
 
 @app.route("/login", methods=["POST", "GET"])
 @unauthorized_only
@@ -253,7 +258,7 @@ def forgot_pass():
 def dashboard():
     project = Project.query.get(current_user.project_id)
     bugs_inwork = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='In Work')
-    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status!='New').limit(5).all()
+    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status!='New').order_by(Bug.id.desc()).limit(5).all()
     project_members = User.query.filter_by(project_id=current_user.project_id).limit(5).all()
     return render_template("dashboard.html", user=current_user, project=project, bugs_inwork=bugs_inwork, members=project_members, all_bugs=all_bugs, new_bugs=get_new_bugs(), page_name="Dashboard")
 
@@ -275,7 +280,7 @@ def bugs_history():
 @app.route("/your-bugs")
 @logged_only
 def your_bugs():
-    bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done') & (Bug.responsible_id==current_user.id)).order_by(Bug.status.desc())
+    bugs_list = Bug.query.filter_by(project_id=current_user.project_id, responsible_id=current_user.id).filter((Bug.status=='In Work') | (Bug.status=='Done')).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Your Bugs")
 
