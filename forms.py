@@ -49,3 +49,7 @@ class SendReportForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     body = CKEditorField("Description", validators=[DataRequired()])
     submit = SubmitField("Report")
+
+class RemindPasstForm(FlaskForm):
+    email = EmailField("Email", validators=[DataRequired()])
+    submit = SubmitField("Send")

@@ -1,7 +1,15 @@
 {% include "auth-header.html" %}
             <h1 class="auth-title">Sign Up</h1>
             <p class="auth-subtitle mb-5">Input your data to register to our website.</p>
-
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                    <ul class=flashes style="color: black">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            {% endwith %}
             <form action method="post" class="form" role="form" novalidate>
                 {{ form.csrf_token }}
                 <div class="form-group position-relative has-icon-left mb-4">

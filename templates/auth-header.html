@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mazer Admin Dashboard</title>
+    <title>{{ page_name }} - Bugfire</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main/app.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/auth.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo/favicon.png') }}" type="image/png">
@@ -16,6 +16,6 @@
 <div class="row h-100">
     <div class="col-lg-5 col-12">
         <div id="auth-left">
-            <div class="auth-logo">
-                <a href="index.html"><img src="{{ url_for('static', filename='images/logo/logo.png') }}" alt="Logo"></a>
+            <div class="auth-logo" style="margin-bottom: 3rem;">
+                <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/logo/logo.png') }}" style="height: 2.5rem;" alt="Logo"></a>
             </div>

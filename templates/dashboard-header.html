@@ -62,8 +62,14 @@
                         <a href="{{url_for('your_bugs')}}">Your Bugs</a>
                     </li>
                     <li class="submenu-item ">
+
+                        {% set new_bugs_list = [] %}
+                        {% for bug in new_bugs %}
+                            {{ new_bugs_list.append(bug) or "" }}
+                        {% endfor %}
+
                         <a href="{{url_for('new_bugs')}}" class="fonticon-wrap d-inline {% if page_name=='New Bugs' %}active{% endif %}">New</a>
-                        <span class="badge bg-light-primary badge-pill badge-round float-right mt-50">5</span>
+                        <span class="badge bg-light-primary badge-pill badge-round float-right mt-50">{{ new_bugs_list|length }}</span>
                     </li>
                     <li class="submenu-item {% if page_name=='Bugs History' %}active{% endif %}">
                         <a href="{{url_for('bugs_history')}}">History</a>

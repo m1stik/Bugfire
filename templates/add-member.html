@@ -25,6 +25,15 @@
                     <div class="card">
                         <div class="card-content">
                             <div class="card-body">
+                                {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                        <ul class=flashes style="color: black">
+                                    {% for message in messages %}
+                                        <li>{{ message }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% endwith %}
                                 <form action method="post" class="form" role="form" novalidate>
                                     {{ form.csrf_token }}
                                     <div class="row">
