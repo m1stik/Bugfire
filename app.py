@@ -28,24 +28,23 @@ RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY')
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
 ## App set up
-app = Flask(__name__)
+application = Flask(__name__)
 
-app.config['SECRET_KEY'] = APP_SECRET_KEY
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAIL_SERVER'] = MAIL_SERVER
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = MAIL_USERNAME
-app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['RECAPTCHA_PUBLIC_KEY'] = RECAPTCHA_SITE_KEY
-app.config['RECAPTCHA_PRIVATE_KEY'] = RECAPTCHA_SECRET_KEY
+application.config['SECRET_KEY'] = APP_SECRET_KEY
+application.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['MAIL_SERVER'] = MAIL_SERVER
+application.config['MAIL_PORT'] = 465
+application.config['MAIL_USERNAME'] = MAIL_USERNAME
+application.config['MAIL_PASSWORD'] = MAIL_PASSWORD
+application.config['MAIL_USE_TLS'] = False
+application.config['MAIL_USE_SSL'] = True
+application.config['RECAPTCHA_PUBLIC_KEY'] = RECAPTCHA_SITE_KEY
+application.config['RECAPTCHA_PRIVATE_KEY'] = RECAPTCHA_SECRET_KEY
 
-ckeditor = CKEditor(app)
-#Bootstrap(app)
-mail = Mail(app)
-db = SQLAlchemy(app)
+ckeditor = CKEditor(application)
+mail = Mail(application)
+db = SQLAlchemy(application)
 Base = declarative_base()
 
 ## CONFIGURE TABLES
@@ -86,10 +85,10 @@ class Bug(db.Model, Base):
 
 ## FLASK LOGIN
 login_manager = LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(application)
 
 ##FLASK GRAVATAR
-gravatar = Gravatar(app,
+gravatar = Gravatar(application,
                     size=250,
                     rating='g',
                     default='identicon',
@@ -151,7 +150,7 @@ def get_new_bugs():
 
 
 ## ROUTES
-@app.route("/")
+@application.route("/")
 def home():
     stats = {
         'users' : db.session.query(User.id).count(),
@@ -160,7 +159,7 @@ def home():
     }
     return render_template("index.html", stats=stats)
 
-@app.route("/login", methods=["POST", "GET"])
+@application.route("/login", methods=["POST", "GET"])
 @unauthorized_only
 def login():
     form = LogInForm()
@@ -180,7 +179,7 @@ def login():
             return redirect(url_for('login'))
     return render_template("auth-login.html", form=form, page_name="Log In")
 
-@app.route("/register", methods=["POST", "GET"])
+@application.route("/register", methods=["POST", "GET"])
 @unauthorized_only
 def register():
     form = CreateUserForm()
@@ -222,12 +221,12 @@ def register():
 
     return render_template("auth-register.html", form=form, page_name="Sign Up")
 
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route("/forgot-pass", methods=["POST", "GET"])
+@application.route("/forgot-pass", methods=["POST", "GET"])
 @unauthorized_only
 def forgot_pass():
     form = RemindPasstForm()
@@ -257,7 +256,7 @@ def forgot_pass():
     return render_template("auth-forgot-password.html", form=form, page_name="Reset Password")
 
 ## DASHBOARD
-@app.route("/dashboard")
+@application.route("/dashboard")
 @logged_only
 def dashboard():
     project = Project.query.get(current_user.project_id)
@@ -267,34 +266,34 @@ def dashboard():
     return render_template("dashboard.html", user=current_user, project=project, bugs_inwork=bugs_inwork, members=project_members, all_bugs=all_bugs, new_bugs=get_new_bugs(), page_name="Dashboard")
 
 ## BUGS
-@app.route("/bugs")
+@application.route("/bugs")
 @logged_only
 def bugs():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done')).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Active Bugs")
 
-@app.route("/bugs-history")
+@application.route("/bugs-history")
 @logged_only
 def bugs_history():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='Cancelled') | (Bug.status=='Deleted'))
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-history.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Bugs History")
 
-@app.route("/your-bugs")
+@application.route("/your-bugs")
 @logged_only
 def your_bugs():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id, responsible_id=current_user.id).filter((Bug.status=='In Work') | (Bug.status=='Done')).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Your Bugs")
 
-@app.route("/new-bugs")
+@application.route("/new-bugs")
 @logged_only
 def new_bugs():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='New')
     return render_template("bugs-new.html", bugs=bugs_list, new_bugs=get_new_bugs(), page_name="New Bugs")
 
-@app.route("/add-bug", methods=["POST", "GET"])
+@application.route("/add-bug", methods=["POST", "GET"])
 @logged_only
 def add_bug():
     form = AddBugForm()
@@ -314,7 +313,7 @@ def add_bug():
         return redirect(url_for("bugs"))
     return render_template("add-bug.html", form=form, new_bugs=get_new_bugs(), page_name="Add a Bug")
 
-@app.route("/bug/<int:bug_id>", methods=["POST", "GET"])
+@application.route("/bug/<int:bug_id>", methods=["POST", "GET"])
 @logged_only
 def bug(bug_id):
     bug = Bug.query.get(bug_id)
@@ -323,7 +322,7 @@ def bug(bug_id):
     project_members = User.query.filter_by(project_id=current_user.project_id).all()    
     return render_template("bug-view.html", bug=bug, members=project_members, new_bugs=get_new_bugs(), page_name=bug.title)
 
-@app.route("/bug/<int:bug_id>/<status>")
+@application.route("/bug/<int:bug_id>/<status>")
 @logged_only
 def bug_status(bug_id, status):
     bug = Bug.query.get(bug_id)
@@ -333,7 +332,7 @@ def bug_status(bug_id, status):
     db.session.commit()
     return redirect(url_for('bugs'))
 
-@app.route("/bugs/delete")
+@application.route("/bugs/delete")
 @logged_only
 @creator_only
 def delete_all_bugs():
@@ -341,7 +340,7 @@ def delete_all_bugs():
     db.session.exec(statement)
     return redirect(url_for('bugs'))
 
-@app.route("/edit-bug/<int:bug_id>", methods=["POST", "GET"])
+@application.route("/edit-bug/<int:bug_id>", methods=["POST", "GET"])
 @logged_only
 def bug_edit(bug_id):
     bug = Bug.query.get(bug_id)
@@ -368,13 +367,13 @@ def bug_edit(bug_id):
     return render_template("add-bug.html", form=edit_form, new_bugs=get_new_bugs(), page_name=f"Edit {bug.title}")
 
 ## MEMBERS
-@app.route("/team")
+@application.route("/team")
 @logged_only
 def team():
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("project-members.html", members=project_members, user=current_user, new_bugs=get_new_bugs(), page_name="Project Team")
 
-@app.route("/add-member", methods=["POST", "GET"])
+@application.route("/add-member", methods=["POST", "GET"])
 @logged_only
 def add_member():
     form = AddMemberForm(password=PasswordGenerator().generate())
@@ -407,7 +406,7 @@ def add_member():
             return redirect(url_for("team"))
     return render_template("add-member.html", form=form, new_bugs=get_new_bugs(), page_name="Add a Member")
 
-@app.route("/edit-member/<int:member_id>", methods=["POST", "GET"])
+@application.route("/edit-member/<int:member_id>", methods=["POST", "GET"])
 @logged_only
 def edit_member(member_id):
     member = User.query.get(member_id)
@@ -424,7 +423,7 @@ def edit_member(member_id):
         return redirect(url_for("team"))
     return render_template("add-member.html", form=edit_form, member=member, new_bugs=get_new_bugs(), page_name=f"Edit {member.name}")
 
-@app.route("/delete-member/<int:member_id>")
+@application.route("/delete-member/<int:member_id>")
 @logged_only
 @creator_only
 def delete_member(member_id):
@@ -436,7 +435,7 @@ def delete_member(member_id):
 
 
 ## SETTINGS
-@app.route("/settings", methods=["POST", "GET"])
+@application.route("/settings", methods=["POST", "GET"])
 @logged_only
 def settings():
     project = Project.query.get(current_user.project_id)
@@ -471,13 +470,13 @@ def settings():
 
 
 ## BUGREPORT
-@app.route("/bugreport")
+@application.route("/bugreport")
 @logged_only
 def bugreport():
     project = Project.query.get(current_user.project_id)
     return render_template("bugreport.html", project=project, new_bugs=get_new_bugs(), page_name="Bugreport Link")
 
-@app.route("/bugreport/refresh/<int:project_id>")
+@application.route("/bugreport/refresh/<int:project_id>")
 @logged_only
 def refresh_bugreport_link(project_id):
     project = Project.query.get(project_id)
@@ -485,7 +484,7 @@ def refresh_bugreport_link(project_id):
     db.session.commit()
     return redirect(url_for("bugreport"))
 
-@app.route("/report/<project_hash>", methods=["POST", "GET"])
+@application.route("/report/<project_hash>", methods=["POST", "GET"])
 @logged_only
 def report(project_hash):
     project = Project.query.filter_by(hash_id=project_hash).first()
@@ -506,4 +505,4 @@ def report(project_hash):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    application.run(host='0.0.0.0', port=5000)
