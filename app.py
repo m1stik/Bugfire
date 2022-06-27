@@ -24,6 +24,8 @@ APP_SECRET_KEY = os.getenv('APP_SECRET_KEY')
 MAIL_SERVER = os.getenv('MAIL_SERVER')
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY')
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
 ## App set up
 app = Flask(__name__)
@@ -37,6 +39,8 @@ app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
+app.config['RECAPTCHA_PUBLIC_KEY'] = RECAPTCHA_SITE_KEY
+app.config['RECAPTCHA_PRIVATE_KEY'] = RECAPTCHA_SECRET_KEY
 
 ckeditor = CKEditor(app)
 #Bootstrap(app)

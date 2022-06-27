@@ -1,4 +1,4 @@
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, SubmitField, PasswordField, EmailField, SelectField
 from wtforms.validators import DataRequired
 from flask_ckeditor import CKEditorField
@@ -10,11 +10,13 @@ class CreateUserForm(FlaskForm):
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     project_name = StringField("Project Name", validators=[DataRequired()])
+    recaptcha = RecaptchaField()
     submit = SubmitField("Sign Up")
 
 class LogInForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
+    recaptcha = RecaptchaField()
     submit = SubmitField("Log In")
 
 class AddBugForm(FlaskForm):
