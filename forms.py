@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, PasswordField, EmailField, SelectF
 from wtforms.validators import DataRequired
 from flask_ckeditor import CKEditorField
 
-## WTForm
+# WTForm
 class CreateUserForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
@@ -13,11 +13,13 @@ class CreateUserForm(FlaskForm):
     recaptcha = RecaptchaField()
     submit = SubmitField("Sign Up")
 
+
 class LogInForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     recaptcha = RecaptchaField()
     submit = SubmitField("Log In")
+
 
 class AddBugForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
@@ -26,6 +28,7 @@ class AddBugForm(FlaskForm):
     body = CKEditorField("Body", validators=[DataRequired()])
     submit = SubmitField("Add")
 
+
 class AddMemberForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = EmailField("Email", validators=[DataRequired()])
@@ -33,25 +36,30 @@ class AddMemberForm(FlaskForm):
     role = StringField("Role", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+
 class EditMemberForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     role = StringField("Role", validators=[DataRequired()])
     submit = SubmitField("Submit1")
 
+
 class EditProjectForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     submit1 = SubmitField("Submit")
+
 
 class EditProfileForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     new_password = StringField("New Password")
     submit2 = SubmitField("Submit2")
 
+
 class SendReportForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     body = CKEditorField("Description", validators=[DataRequired()])
     submit = SubmitField("Report")
 
-class RemindPasstForm(FlaskForm):
+
+class RemindPassForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired()])
     submit = SubmitField("Send")

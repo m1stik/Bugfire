@@ -7,14 +7,14 @@ from sqlalchemy import delete
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm, SendReportForm, RemindPasstForm
+from forms import CreateUserForm, LogInForm, AddBugForm, AddMemberForm, EditMemberForm, EditProjectForm, EditProfileForm, SendReportForm, RemindPassForm
 from flask_gravatar import Gravatar
 from flask_mail import Mail, Message
 from password_generator import PasswordGenerator
 from functools import wraps
 from dotenv import load_dotenv
 
-## Load environment variables
+# Load environment variables
 load_dotenv()
 DB_USERNAME = os.getenv('DB_USERNAME')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
@@ -27,9 +27,8 @@ MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
 RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY')
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
-## App set up
+# App set up
 application = Flask(__name__)
-
 application.config['SECRET_KEY'] = APP_SECRET_KEY
 application.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}"
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -47,8 +46,8 @@ mail = Mail(application)
 db = SQLAlchemy(application)
 Base = declarative_base()
 
-## CONFIGURE TABLES
 
+# CONFIGURE TABLES
 class Project(db.Model, Base):
     __tablename__ = "projects"
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +55,7 @@ class Project(db.Model, Base):
     hash_id = db.Column(db.String(50), nullable=True)
     members = relationship("User", back_populates="project")
     bugs = relationship("Bug", back_populates="project")
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -67,6 +67,7 @@ class User(UserMixin, db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     project = relationship("Project", back_populates="members")
     bugs = relationship("Bug", back_populates="responsible")
+
 
 class Bug(db.Model, Base):
     __tablename__ = "bugs"
@@ -80,14 +81,15 @@ class Bug(db.Model, Base):
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
     project = relationship("Project", back_populates="bugs")
 
-## Uncomment this for the initial creation of the database
-#db.create_all()
+# Uncomment this for the initial creation of the database
+# db.create_all()
 
-## FLASK LOGIN
+
+# FLASK LOGIN
 login_manager = LoginManager()
 login_manager.init_app(application)
 
-##FLASK GRAVATAR
+# FLASK GRAVATAR
 gravatar = Gravatar(application,
                     size=250,
                     rating='g',
@@ -97,12 +99,14 @@ gravatar = Gravatar(application,
                     use_ssl=False,
                     base_url=None)
 
-## Setup a user object
+
+# Setup a user object
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-## Decorator access for login required pages
+
+# Decorator access for login required pages
 def logged_only(function):
     @wraps(function)
     def wrapper_function(*args, **kwargs):
@@ -113,7 +117,8 @@ def logged_only(function):
         return function(*args, **kwargs)
     return wrapper_function
 
-## Decorator access for unauthorized users only
+
+# Decorator access for unauthorized users only
 def unauthorized_only(function):
     @wraps(function)
     def wrapper_function(*args, **kwargs):
@@ -124,7 +129,8 @@ def unauthorized_only(function):
         return function(*args, **kwargs)
     return wrapper_function
 
-## Decorator access for creators only
+
+# Decorator access for creators only
 def creator_only(function):
     @wraps(function)
     def wrapper_function(*args, **kwargs):
@@ -135,7 +141,8 @@ def creator_only(function):
         return function(*args, **kwargs)
     return wrapper_function
 
-## Checking user for the access to the requested bug or member
+
+# Checking user for the access to the requested bug or member
 def check_bug_or_member(user, bug=None, member=None):
     if bug:
         if bug.project_id != user.project_id:
@@ -144,12 +151,13 @@ def check_bug_or_member(user, bug=None, member=None):
         if member.project_id != user.project_id:
             abort(403)
 
+
 def get_new_bugs():
     new_bugs = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='New')
     return new_bugs
 
 
-## ROUTES
+# ROUTES
 @application.route("/")
 def home():
     stats = {
@@ -158,6 +166,7 @@ def home():
         'bugs' : db.session.query(Bug.id).count()
     }
     return render_template("index.html", stats=stats)
+
 
 @application.route("/login", methods=["POST", "GET"])
 @unauthorized_only
@@ -178,6 +187,7 @@ def login():
             flash("Such user doesn't exist")
             return redirect(url_for('login'))
     return render_template("auth-login.html", form=form, page_name="Log In")
+
 
 @application.route("/register", methods=["POST", "GET"])
 @unauthorized_only
@@ -207,7 +217,7 @@ def register():
                 role = "Creator",
                 project = new_project
             )
-            
+
             db.session.add(new_project, new_user)
             db.session.commit()
 
@@ -221,15 +231,17 @@ def register():
 
     return render_template("auth-register.html", form=form, page_name="Sign Up")
 
+
 @application.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('home'))
 
+
 @application.route("/forgot-pass", methods=["POST", "GET"])
 @unauthorized_only
 def forgot_pass():
-    form = RemindPasstForm()
+    form = RemindPassForm()
     if form.validate_on_submit():
         if User.query.filter_by(email=form.email.data).first():
             new_pass = PasswordGenerator().generate()
@@ -255,23 +267,26 @@ def forgot_pass():
 
     return render_template("auth-forgot-password.html", form=form, page_name="Reset Password")
 
-## DASHBOARD
+
+# DASHBOARD
 @application.route("/dashboard")
 @logged_only
 def dashboard():
     project = Project.query.get(current_user.project_id)
     bugs_inwork = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='In Work')
-    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status!='New').order_by(Bug.id.desc()).limit(5).all()
+    all_bugs = Bug.query.filter_by(project_id=current_user.project_id).order_by(Bug.id.desc()).limit(5).all()
     project_members = User.query.filter_by(project_id=current_user.project_id).limit(5).all()
     return render_template("dashboard.html", user=current_user, project=project, bugs_inwork=bugs_inwork, members=project_members, all_bugs=all_bugs, new_bugs=get_new_bugs(), page_name="Dashboard")
 
-## BUGS
+
+# BUGS
 @application.route("/bugs")
 @logged_only
 def bugs():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter((Bug.status=='In Work') | (Bug.status=='Done')).order_by(Bug.status.desc())
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Active Bugs")
+
 
 @application.route("/bugs-history")
 @logged_only
@@ -280,6 +295,7 @@ def bugs_history():
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-history.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Bugs History")
 
+
 @application.route("/your-bugs")
 @logged_only
 def your_bugs():
@@ -287,11 +303,13 @@ def your_bugs():
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("bugs-active.html", bugs=bugs_list, members=project_members, new_bugs=get_new_bugs(), page_name="Your Bugs")
 
+
 @application.route("/new-bugs")
 @logged_only
 def new_bugs():
     bugs_list = Bug.query.filter_by(project_id=current_user.project_id).filter(Bug.status=='New')
     return render_template("bugs-new.html", bugs=bugs_list, new_bugs=get_new_bugs(), page_name="New Bugs")
+
 
 @application.route("/add-bug", methods=["POST", "GET"])
 @logged_only
@@ -313,6 +331,7 @@ def add_bug():
         return redirect(url_for("bugs"))
     return render_template("add-bug.html", form=form, new_bugs=get_new_bugs(), page_name="Add a Bug")
 
+
 @application.route("/bug/<int:bug_id>", methods=["POST", "GET"])
 @logged_only
 def bug(bug_id):
@@ -321,6 +340,7 @@ def bug(bug_id):
 
     project_members = User.query.filter_by(project_id=current_user.project_id).all()    
     return render_template("bug-view.html", bug=bug, members=project_members, new_bugs=get_new_bugs(), page_name=bug.title)
+
 
 @application.route("/bug/<int:bug_id>/<status>")
 @logged_only
@@ -332,6 +352,7 @@ def bug_status(bug_id, status):
     db.session.commit()
     return redirect(url_for('bugs'))
 
+
 @application.route("/bugs/delete")
 @logged_only
 @creator_only
@@ -339,6 +360,7 @@ def delete_all_bugs():
     statement = delete(Bug).where(Bug.project_id==current_user.project_id)
     db.session.exec(statement)
     return redirect(url_for('bugs'))
+
 
 @application.route("/edit-bug/<int:bug_id>", methods=["POST", "GET"])
 @logged_only
@@ -366,12 +388,14 @@ def bug_edit(bug_id):
 
     return render_template("add-bug.html", form=edit_form, new_bugs=get_new_bugs(), page_name=f"Edit {bug.title}")
 
-## MEMBERS
+
+# MEMBERS
 @application.route("/team")
 @logged_only
 def team():
     project_members = User.query.filter_by(project_id=current_user.project_id).all()
     return render_template("project-members.html", members=project_members, user=current_user, new_bugs=get_new_bugs(), page_name="Project Team")
+
 
 @application.route("/add-member", methods=["POST", "GET"])
 @logged_only
@@ -406,6 +430,7 @@ def add_member():
             return redirect(url_for("team"))
     return render_template("add-member.html", form=form, new_bugs=get_new_bugs(), page_name="Add a Member")
 
+
 @application.route("/edit-member/<int:member_id>", methods=["POST", "GET"])
 @logged_only
 def edit_member(member_id):
@@ -423,6 +448,7 @@ def edit_member(member_id):
         return redirect(url_for("team"))
     return render_template("add-member.html", form=edit_form, member=member, new_bugs=get_new_bugs(), page_name=f"Edit {member.name}")
 
+
 @application.route("/delete-member/<int:member_id>")
 @logged_only
 @creator_only
@@ -434,7 +460,7 @@ def delete_member(member_id):
     return redirect(url_for('team'))
 
 
-## SETTINGS
+# SETTINGS
 @application.route("/settings", methods=["POST", "GET"])
 @logged_only
 def settings():
@@ -469,12 +495,13 @@ def settings():
     return render_template("settings.html", project_form=project_form, profile_form=profile_form, user=current_user, new_bugs=get_new_bugs(), page_name="Settings")
 
 
-## BUGREPORT
+# BUGREPORT
 @application.route("/bugreport")
 @logged_only
 def bugreport():
     project = Project.query.get(current_user.project_id)
     return render_template("bugreport.html", project=project, new_bugs=get_new_bugs(), page_name="Bugreport Link")
+
 
 @application.route("/bugreport/refresh/<int:project_id>")
 @logged_only
@@ -483,6 +510,7 @@ def refresh_bugreport_link(project_id):
     project.hash_id = PasswordGenerator().generate_hash()
     db.session.commit()
     return redirect(url_for("bugreport"))
+
 
 @application.route("/report/<project_hash>", methods=["POST", "GET"])
 @logged_only

@@ -1,6 +1,7 @@
 import random
 import uuid
 
+
 class PasswordGenerator:
 
     def __init__(self):
@@ -14,7 +15,7 @@ class PasswordGenerator:
     def generate(self):
         password_unmixed = []
 
-        #Generating sequence of chars
+        # Generating sequence of chars
         for step in range(1, self.nr_letters + 1):
             password_unmixed.append(random.choice(self.letters))
         for step in range(1, self.nr_symbols + 1):
@@ -22,14 +23,14 @@ class PasswordGenerator:
         for step in range(1, self.nr_numbers + 1):
             password_unmixed.append(random.choice(self.numbers))
 
-        #Shuffling the sequence
+        # Shuffling the sequence
         random.shuffle(password_unmixed)
 
-        #Converting list to string
+        # Converting list to string
         password_string = ''.join(password_unmixed)
 
-        #Password output
+        # Password output
         return str(password_string)
-    
+
     def generate_hash(self):
         return str(uuid.uuid4().hex)

@@ -110,34 +110,36 @@
                                     </thead>
                                     <tbody>
                                         {% for bug in all_bugs%}
-                                        <tr>
-                                            {% if bug.priority=='Critical' %}
-                                                <td class="col-auto">
-                                                    <div class="stats-icon red" style="float: left">
-                                                        <i class="bi-dash-circle-fill"></i>
-                                                    </div>
-                                                </td>
-                                            {% elif bug.priority=='Medium' %}
-                                                <td class="col-1">
-                                                    <div class="stats-icon bg-warning" style="float: left">
-                                                        <i class="bi-exclamation-triangle-fill"></i>
-                                                    </div>
-                                                </td>
-                                            {% elif bug.priority=='Soft' %}
-                                                <td class="col-1">
-                                                    <div class="stats-icon blue" style="float: left">
-                                                        <i class="bi-info-circle-fill"></i>
-                                                    </div>
-                                                </td>
+                                            {% if bug.responsible %}
+                                                <tr>
+                                                    {% if bug.priority=='Critical' %}
+                                                        <td class="col-auto">
+                                                            <div class="stats-icon red" style="float: left">
+                                                                <i class="bi-dash-circle-fill"></i>
+                                                            </div>
+                                                        </td>
+                                                    {% elif bug.priority=='Medium' %}
+                                                        <td class="col-1">
+                                                            <div class="stats-icon bg-warning" style="float: left">
+                                                                <i class="bi-exclamation-triangle-fill"></i>
+                                                            </div>
+                                                        </td>
+                                                    {% elif bug.priority=='Soft' %}
+                                                        <td class="col-1">
+                                                            <div class="stats-icon blue" style="float: left">
+                                                                <i class="bi-info-circle-fill"></i>
+                                                            </div>
+                                                        </td>
+                                                    {% endif %}
+                                                    <td class="col-auto">
+                                                        <a href="{{url_for('bug', bug_id=bug.id)}}" class="mb-12">{{bug.title}}</a>
+                                                    </td>
+                                                    <td class="col-auto">
+                                                        <p class="font-bold ms-1 mb-0">{{bug.status}}</p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
                                             {% endif %}
-                                            <td class="col-auto">
-                                                <a href="{{url_for('bug', bug_id=bug.id)}}" class="mb-12">{{bug.title}}</a>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class="font-bold ms-1 mb-0">{{bug.status}}</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>

@@ -42,6 +42,9 @@
                                     <td>{{member.name}}</td>
                                 {% endif %}
                             {% endfor %}
+                            {% if bug.responsible == None %}
+                                <td>{{bug.responsible}}</td>
+                            {% endif %}
                             <td>{{bug.priority}}</td>
                             <td>
                                 <span class="badge 
