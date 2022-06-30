@@ -11,7 +11,7 @@
 - Add, delete, edit bugs
 - Add and manage your team
 - Assign bugs to certain team members
-- Gather feedback from your users
+- Collect feedback from your users
 
 ### Used libraries
 > Check out the requirements.txt file
