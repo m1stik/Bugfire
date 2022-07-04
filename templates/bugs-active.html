@@ -38,11 +38,15 @@
                         {% for bug in bugs %}
                         <tr>
                             <td><a href="{{url_for('bug', bug_id=bug.id)}}">{{bug.title}}</a></td>
-                            {% for member in members %}
-                                {% if member.id == bug.responsible_id %}
-                                    <td>{{member.name}}</td>
-                                {% endif %}
-                            {% endfor %}
+                            {% if bug.responsible_id %}
+                                {% for member in members %}
+                                    {% if member.id == bug.responsible_id %}
+                                        <td>{{member.name}}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <td>None</td>
+                            {% endif %}
                             <td>{{bug.priority}}</td>
                             <td>
                                 <span class="badge 
